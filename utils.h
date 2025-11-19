@@ -8,10 +8,11 @@
 #include <stdlib.h>
 #include "debugmalloc.h"
 
- /**
-  * @brief Represents a span of time.
-  */
-typedef struct TimeSpan {
+/**
+ * @brief Represents a span of time.
+ */
+typedef struct TimeSpan
+{
     int hours;   /**< Number of hours in the time span. */
     int minutes; /**< Number of minutes in the time span. */
     int seconds; /**< Number of seconds in the time span. */
@@ -20,9 +21,10 @@ typedef struct TimeSpan {
 /**
  * @brief Represents a full date with a nested TimeSpan.
  */
-typedef struct Date {
-    int year;   /**< Year component of the date. */
-    int month;  /**< Month component of the date. */
-    int day;    /**< Day component of the date. */
+typedef struct Date
+{
+    int year;  /**< Year component of the date. */
+    int month; /**< Month component of the date. */
+    int day;   /**< Day component of the date. */
     struct TimeSpan;
 } Date;

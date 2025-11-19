@@ -14,14 +14,17 @@ void init_linestoplist(LineStopList *linestoplist)
 	linestoplist->capacity = 0;
 }
 
-void free_linelist(LineList* linelist)
+void free_linelist(LineList *linelist)
 {
+	if (!linelist)
+		return;
 	for (int i = 0; i < linelist->count; i++)
 	{
 		free_linestoplist(linelist->lines[i].stoplist);
 		free(linelist->lines[i].stoplist);
 	}
 	free(linelist->lines);
+	free(linelist);
 }
 
 void free_linestoplist(LineStopList *linestoplist)
@@ -35,7 +38,7 @@ int process_lines(LineList *linelist, StopList *stoplist, char *filepath)
 		return -1;
 	FILE *file = fopen(filepath, "r");
 	if (file == NULL)
-		return -1;
+		return -2;
 	char unprocessed[512];
 	while (fgets(unprocessed, sizeof(unprocessed), file))
 	{
@@ -55,17 +58,17 @@ int process_lines(LineList *linelist, StopList *stoplist, char *filepath)
 			char *value = strtok(NULL, "-");
 			printf("Key: %s, Value: %s\n", key, value);
 			int stopindex = find_stop_index(stoplist, key);
-			if (stopindex != -1)
+			if (stopindex > -1)
 			{
 				Stop *stop = &stoplist->stops[stopindex];
 				char *hour_str = strtok(value, ":");
 				char *minute_str = strtok(NULL, ":");
 				TimeSpan time = {(*hour_str - '0'), (*minute_str - '0'), 0};
 				LineStop linestop = {stop, time};
-				if (ensure_linestoplist_capacity(line.stoplist) != 0)
+				if (ensure_linestoplist_capacity(line.stoplist) == -2)
 				{
 					fclose(file);
-					return -1;
+					return -2;
 				}
 				line.stoplist->stops[line.stoplist->count] = linestop;
 				line.stoplist->count++;
@@ -77,10 +80,10 @@ int process_lines(LineList *linelist, StopList *stoplist, char *filepath)
 			next = strtok(NULL, ";");
 			printf("Next token: %s\n", next);
 		}
-		if (ensure_linelist_capacity(linelist) != 0)
+		if (ensure_linelist_capacity(linelist) == -2)
 		{
 			fclose(file);
-			return -1;
+			return -2;
 		}
 		linelist->lines[linelist->count] = line;
 		linelist->count++;
@@ -96,7 +99,7 @@ int ensure_linelist_capacity(LineList *linelist)
 		int newcapacity = (linelist->capacity == 0) ? 16 : linelist->capacity * 2;
 		Line *newlines = (Line *)malloc(newcapacity * sizeof(Line));
 		if (newlines == NULL)
-			return -1;
+			return -2;
 		for (int i = 0; i < linelist->count; i++)
 		{
 			newlines[i] = linelist->lines[i];
@@ -115,7 +118,7 @@ int ensure_linestoplist_capacity(LineStopList *linestoplist)
 		int newcapacity = (linestoplist->capacity == 0) ? 16 : linestoplist->capacity * 2;
 		LineStop *newlinestops = (LineStop *)malloc(newcapacity * sizeof(LineStop));
 		if (newlinestops == NULL)
-			return -1;
+			return -2;
 		for (int i = 0; i < linestoplist->count; i++)
 		{
 			newlinestops[i] = linestoplist->stops[i];
@@ -129,16 +132,41 @@ int ensure_linestoplist_capacity(LineStopList *linestoplist)
 
 void list_lines(LineList *linelist)
 {
+	if (!linelist)
+		return;
 	for (int i = 0; i < linelist->count; i++)
 	{
+		printf("----------------------\n");
 		printf("Jarat: %d\n", linelist->lines[i].line_num);
 		printf("Verzio: %d\n", linelist->lines[i].version);
 		printf("Utvonal: %s -> %s\n", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[0].stop->name : "", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[linelist->lines[i].stoplist->count - 1].stop->name : "");
+		printf("----------------------\n");
 	}
+}
+
+void list_line(LineList *linelist, int line_num, int version)
+{
+	if (!linelist)
+		return;
+	for (int i = 0; i < linelist->count; i++)
+	{
+		if (linelist->lines[i].line_num == line_num && linelist->lines[i].version == version)
+		{
+			printf("----------------------\n");
+			printf("Jarat: %d\n", linelist->lines[i].line_num);
+			printf("Verzio: %d\n", linelist->lines[i].version);
+			printf("Utvonal: %s -> %s\n", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[0].stop->name : "", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[linelist->lines[i].stoplist->count - 1].stop->name : "");
+			printf("----------------------\n");
+			return;
+		}
+	}
+	printf("Nincs ilyen jarat.\n");
 }
 
 int reorder_linelist_without_a_specific_item(LineList *linelist, int index)
 {
+	if (!linelist || linelist->count == 0)
+		return -2;
 	if (index < 0)
 		return 0;
 	for (int i = index; i < linelist->count - 1; i++)
@@ -151,6 +179,10 @@ int reorder_linelist_without_a_specific_item(LineList *linelist, int index)
 
 int find_line_index(LineList *linelist, Line *line)
 {
+	if (!linelist || linelist->count == 0)
+		return -2;
+	if (!line)
+		return -2;
 	for (int i = 0; i < linelist->count; i++)
 	{
 		if (linelist->lines[i].line_num == line->line_num && linelist->lines[i].version == line->version)
@@ -163,6 +195,8 @@ int find_line_index(LineList *linelist, Line *line)
 
 int find_stop_index_in_linestoplist(LineStopList *linestoplist, char *stopname)
 {
+	if (!linestoplist || linestoplist->count == 0)
+		return -2;
 	for (int i = 0; i < linestoplist->count; i++)
 	{
 		if (strcmp(linestoplist->stops[i].stop->name, stopname) == 0)
@@ -175,9 +209,11 @@ int find_stop_index_in_linestoplist(LineStopList *linestoplist, char *stopname)
 
 int find_stop_index_in_linelist(LineList *linelist, char *stopname)
 {
+	if (!linelist || linelist->count == 0)
+		return -2;
 	for (int i = 0; i < linelist->count; i++)
 	{
-		if (find_stop_index_in_linestoplist(linelist->lines[i].stoplist, stopname) != -1)
+		if (find_stop_index_in_linestoplist(linelist->lines[i].stoplist, stopname) > -1)
 		{
 			return i;
 		}
@@ -187,15 +223,14 @@ int find_stop_index_in_linelist(LineList *linelist, char *stopname)
 
 int create_line(LineList *linelist, Line *line)
 {
-	if (linelist->count >= linelist->capacity)
-	{
-		int newcapacity = (linelist->capacity == 0) ? 16 : linelist->capacity * 2;
-		Line *newlines = (Line *)realloc(linelist->lines, newcapacity * sizeof(Line));
-		if (newlines == NULL)
-			return -1;
-		linelist->lines = newlines;
-		linelist->capacity = newcapacity;
-	}
+	if (!linelist || linelist->count == 0)
+		return -2;
+	if (!line)
+		return -2;
+	if (find_line_index(linelist, line) > -1)
+		return -2;
+	if (ensure_linelist_capacity(linelist) == -2)
+		return -2;
 	linelist->lines[linelist->count] = *line;
 	linelist->count++;
 	return 0;
@@ -203,10 +238,15 @@ int create_line(LineList *linelist, Line *line)
 
 int delete_line(LineList *linelist, Line *line)
 {
+	if (!linelist || linelist->count == 0)
+		return -2;
+	if (!line)
+		return -2;
 	int index = find_line_index(linelist, line);
 	if (index == -1)
 		return -1;
-	reorder_linelist_without_a_specific_item(linelist, index);
+	if (reorder_linelist_without_a_specific_item(linelist, index) == -2)
+		return -2;
 	return 0;
 }
 

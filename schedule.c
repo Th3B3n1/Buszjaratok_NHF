@@ -1,21 +1,23 @@
 #include "schedule.h"
 
-void init_schedulelist(ScheduleList* schedulelist)
+void init_schedulelist(ScheduleList *schedulelist)
 {
 	schedulelist->schedules = NULL;
 	schedulelist->count = 0;
 	schedulelist->capacity = 0;
 }
 
-void free_schedulelist(ScheduleList* schedulelist)
+void free_schedulelist(ScheduleList *schedulelist)
 {
 	free(schedulelist->schedules);
+	free(schedulelist);
 }
 
-int process_schedules(ScheduleList* schedulelist, char* filepath)
+int process_schedules(ScheduleList *schedulelist, char *filepath)
 {
-	FILE* file = fopen(filepath, "r");
-	if (file == NULL) return -1;
+	FILE *file = fopen(filepath, "r");
+	if (file == NULL)
+		return -1;
 	char unprocessed[512];
 	while (fgets(unprocessed, sizeof(unprocessed), file))
 	{
@@ -25,14 +27,14 @@ int process_schedules(ScheduleList* schedulelist, char* filepath)
 	return 0;
 }
 
-int ensure_schedulelist_capacity(ScheduleList* schedulelist)
+int ensure_schedulelist_capacity(ScheduleList *schedulelist)
 {
 	if (schedulelist->count >= schedulelist->capacity)
 	{
 		int newcapacity = (schedulelist->capacity == 0) ? 16 : schedulelist->capacity * 2;
-		Schedule* newschedules = (Schedule*)malloc(newcapacity * sizeof(Schedule));
+		Schedule *newschedules = (Schedule *)malloc(newcapacity * sizeof(Schedule));
 		if (newschedules == NULL)
-			return -1;
+			return -2;
 		for (int i = 0; i < schedulelist->count; i++)
 		{
 			newschedules[i] = schedulelist->schedules[i];
@@ -44,7 +46,7 @@ int ensure_schedulelist_capacity(ScheduleList* schedulelist)
 	return 0;
 }
 
-void list_schedules(ScheduleList* schedulelist)
+void list_schedules(ScheduleList *schedulelist)
 {
 	for (int i = 0; i < schedulelist->count; i++)
 	{
@@ -55,7 +57,7 @@ void list_schedules(ScheduleList* schedulelist)
 	}
 }
 
-int find_schedule_index(ScheduleList* schedulelist, Schedule* schedule)
+int find_schedule_index(ScheduleList *schedulelist, Schedule *schedule)
 {
 	for (int i = 0; i < schedulelist->count; i++)
 	{
@@ -71,12 +73,14 @@ int find_schedule_index(ScheduleList* schedulelist, Schedule* schedule)
 	return -1;
 }
 
-int create_schedule(ScheduleList* schedulelist, Schedule* schedule)
+int create_schedule(ScheduleList *schedulelist, Schedule *schedule)
 {
 
+	return 0;
 }
 
-int delete_schedule(ScheduleList* schedulelist, Schedule* schedule)
+int delete_schedule(ScheduleList *schedulelist, Schedule *schedule)
 {
 
+	return 0;
 }

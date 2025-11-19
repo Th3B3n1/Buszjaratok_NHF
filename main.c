@@ -1,9 +1,10 @@
 #include "menu.h"
 
-int main() {
-	StopList* stoplist = (StopList*)malloc(sizeof(StopList));
-	LineList* linelist = (LineList*)malloc(sizeof(LineList));
-	ScheduleList* schedulelist = (ScheduleList*)malloc(sizeof(ScheduleList));
+int main()
+{
+	StopList *stoplist = (StopList *)malloc(sizeof(StopList));
+	LineList *linelist = (LineList *)malloc(sizeof(LineList));
+	ScheduleList *schedulelist = (ScheduleList *)malloc(sizeof(ScheduleList));
 
 	init_stoplist(stoplist);
 	init_linelist(linelist);
