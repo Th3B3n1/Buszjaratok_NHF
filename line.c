@@ -42,28 +42,29 @@ int process_lines(LineList *linelist, StopList *stoplist, char *filepath)
 	char unprocessed[512];
 	while (fgets(unprocessed, sizeof(unprocessed), file))
 	{
-		char *line_num = strtok(unprocessed, ";");
-		char *version_str = strtok(NULL, ";");
-		char *next = strtok(NULL, ";");
-		printf("Next token: %s\n", next);
-		Line line = {(*line_num - '0'), (*version_str - '0'), NULL};
-		while (next != NULL)
+		char *next;
+		char *line_num = strtok_s(unprocessed, ";", &next);
+		char *version_str = strtok_s(NULL, ";", &next);
+		char *stop;
+		Line line = {atoi(line_num), atoi(version_str), NULL};
+		while ((stop = strtok_s(NULL, ";", &next)) != NULL)
 		{
 			if (line.stoplist == NULL)
 			{
 				line.stoplist = (LineStopList *)malloc(sizeof(LineStopList));
 				init_linestoplist(line.stoplist);
 			}
-			char *key = strtok(next, "-");
-			char *value = strtok(NULL, "-");
-			printf("Key: %s, Value: %s\n", key, value);
+			char *stop_next;
+			char *key = strtok_s(stop, "-", &stop_next);
+			char *value = strtok_s(NULL, "-", &stop_next);
 			int stopindex = find_stop_index(stoplist, key);
 			if (stopindex > -1)
 			{
 				Stop *stop = &stoplist->stops[stopindex];
-				char *hour_str = strtok(value, ":");
-				char *minute_str = strtok(NULL, ":");
-				TimeSpan time = {(*hour_str - '0'), (*minute_str - '0'), 0};
+				char *time_next;
+				char *hour_str = strtok_s(value, ":", &time_next);
+				char *minute_str = strtok_s(NULL, ":", &time_next);
+				TimeSpan time = {atoi(hour_str), atoi(minute_str), 0};
 				LineStop linestop = {stop, time};
 				if (ensure_linestoplist_capacity(line.stoplist) == -2)
 				{
@@ -75,10 +76,8 @@ int process_lines(LineList *linelist, StopList *stoplist, char *filepath)
 			}
 			else
 			{
-				printf("Warning: Stop '%s' not found in stop list.\n", key);
+				printf("Warning: Stop '%s' not found in stop list. Will not be in the line's stoplist.\n", key);
 			}
-			next = strtok(NULL, ";");
-			printf("Next token: %s\n", next);
 		}
 		if (ensure_linelist_capacity(linelist) == -2)
 		{

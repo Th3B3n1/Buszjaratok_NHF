@@ -60,8 +60,6 @@ int ensure_linelist_capacity(LineList *linelist);
 
 int ensure_linestoplist_capacity(LineStopList *linestoplist);
 
-int reorder_linelist_without_a_specific_item(LineList *linelist, int index);
-
 /**
  * @brief Prints all lines in the list.
  * @param linelist Pointer to the LineList to display.
@@ -69,6 +67,8 @@ int reorder_linelist_without_a_specific_item(LineList *linelist, int index);
 void list_lines(LineList *linelist);
 
 void list_line(LineList *linelist, int line_num, int version);
+
+int reorder_linelist_without_a_specific_item(LineList *linelist, int index);
 
 /**
  * @brief Finds the index of a given Line inside a LineList.
