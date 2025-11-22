@@ -28,3 +28,22 @@ typedef struct Date
     int day;   /**< Day component of the date. */
     struct TimeSpan;
 } Date;
+
+typedef struct String {
+    char c;
+    struct String *next;
+} String;
+
+Date init_date();
+
+int compare_dates(const Date *a, const Date *b);
+
+void print_date(const Date *date);
+
+int read_positive_number_from_stdin();
+
+void trim_line(char *s);
+
+char read_char_from_stdin();
+
+char *read_string_from_stdin();

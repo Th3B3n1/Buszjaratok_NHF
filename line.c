@@ -29,15 +29,17 @@ void free_linelist(LineList *linelist)
 
 void free_linestoplist(LineStopList *linestoplist)
 {
+	if (!linestoplist)
+		return;
 	free(linestoplist->stops);
 }
 
-int process_lines(LineList *linelist, StopList *stoplist, char *filepath)
+int process_lines(LineList *linelist, const StopList *stoplist, const char *filepath)
 {
 	if (!stoplist || stoplist->count == 0)
-		return -1;
+		return -2;
 	FILE *file = fopen(filepath, "r");
-	if (file == NULL)
+	if (!file)
 		return -2;
 	char unprocessed[512];
 	while (fgets(unprocessed, sizeof(unprocessed), file))
@@ -97,7 +99,7 @@ int ensure_linelist_capacity(LineList *linelist)
 	{
 		int newcapacity = (linelist->capacity == 0) ? 16 : linelist->capacity * 2;
 		Line *newlines = (Line *)malloc(newcapacity * sizeof(Line));
-		if (newlines == NULL)
+		if (!newlines)
 			return -2;
 		for (int i = 0; i < linelist->count; i++)
 		{
@@ -129,7 +131,7 @@ int ensure_linestoplist_capacity(LineStopList *linestoplist)
 	return 0;
 }
 
-void list_lines(LineList *linelist)
+void list_lines(const LineList *linelist)
 {
 	if (!linelist)
 		return;
@@ -143,7 +145,7 @@ void list_lines(LineList *linelist)
 	}
 }
 
-void list_line(LineList *linelist, int line_num, int version)
+void list_line(const LineList *linelist, const int line_num, const int version)
 {
 	if (!linelist)
 		return;
@@ -162,7 +164,7 @@ void list_line(LineList *linelist, int line_num, int version)
 	printf("Nincs ilyen jarat.\n");
 }
 
-int reorder_linelist_without_a_specific_item(LineList *linelist, int index)
+int reorder_linelist_without_a_specific_item(LineList *linelist, const int index)
 {
 	if (!linelist || linelist->count == 0)
 		return -2;
@@ -176,7 +178,7 @@ int reorder_linelist_without_a_specific_item(LineList *linelist, int index)
 	return 0;
 }
 
-int find_line_index(LineList *linelist, Line *line)
+int find_line_index(const LineList *linelist, const Line *line)
 {
 	if (!linelist || linelist->count == 0)
 		return -2;
@@ -192,7 +194,7 @@ int find_line_index(LineList *linelist, Line *line)
 	return -1;
 }
 
-int find_stop_index_in_linestoplist(LineStopList *linestoplist, char *stopname)
+int find_stop_index_in_linestoplist(const LineStopList *linestoplist, const char *stopname)
 {
 	if (!linestoplist || linestoplist->count == 0)
 		return -2;
@@ -206,7 +208,7 @@ int find_stop_index_in_linestoplist(LineStopList *linestoplist, char *stopname)
 	return -1;
 }
 
-int find_stop_index_in_linelist(LineList *linelist, char *stopname)
+int find_stop_index_in_linelist(const LineList *linelist, const char *stopname)
 {
 	if (!linelist || linelist->count == 0)
 		return -2;
@@ -220,14 +222,21 @@ int find_stop_index_in_linelist(LineList *linelist, char *stopname)
 	return -1;
 }
 
-int create_line(LineList *linelist, Line *line)
+int compare_lines(const Line *a, const Line *b)
+{
+	if (a->line_num != b->line_num) return -1;
+	if (a->version != b->version) return -1;
+	return 0;
+}
+
+int create_line(LineList *linelist, const Line *line)
 {
 	if (!linelist || linelist->count == 0)
 		return -2;
 	if (!line)
 		return -2;
 	if (find_line_index(linelist, line) > -1)
-		return -2;
+		return -1;
 	if (ensure_linelist_capacity(linelist) == -2)
 		return -2;
 	linelist->lines[linelist->count] = *line;
@@ -235,7 +244,7 @@ int create_line(LineList *linelist, Line *line)
 	return 0;
 }
 
-int delete_line(LineList *linelist, Line *line)
+int delete_line(LineList *linelist, const Line *line)
 {
 	if (!linelist || linelist->count == 0)
 		return -2;
@@ -249,7 +258,7 @@ int delete_line(LineList *linelist, Line *line)
 	return 0;
 }
 
-Stop *get_last_stop(Line *line)
+Stop *get_last_stop(const Line *line)
 {
-	return line->stoplist->stops[line->stoplist->count].stop;
+	return line->stoplist->stops[line->stoplist->count - 1].stop;
 }

@@ -31,7 +31,7 @@ void init_stoplist(StopList *stoplist);
 
 void free_stoplist(StopList *stoplist);
 
-int process_stops(StopList *stoplist, char *filepath);
+int process_stops(StopList *stoplist, const char *filepath);
 
 /**
  * @brief Ensures the StopList has enough capacity for adding new items.
@@ -44,7 +44,7 @@ int ensure_stoplist_capacity(StopList *stoplist);
  * @brief Prints all stops in the list to stdout.
  * @param stoplist Pointer to the StopList to print.
  */
-void list_stops(StopList *stoplist);
+void list_stops(const StopList *stoplist);
 
 /**
  * @brief Reorders the list by removing a specific index.
@@ -52,7 +52,7 @@ void list_stops(StopList *stoplist);
  * @param index Index of the element to remove.
  * @return 0 on success, -1 if index is invalid.
  */
-int reorder_stoplist_without_a_specific_item(StopList *stoplist, int index);
+int reorder_stoplist_without_a_specific_item(StopList *stoplist, const int index);
 
 /**
  * @brief Finds the index of a stop by its name.
@@ -60,7 +60,7 @@ int reorder_stoplist_without_a_specific_item(StopList *stoplist, int index);
  * @param stopname Name of the stop to search.
  * @return Index of the stop, or -1 if not found.
  */
-int find_stop_index(StopList *stoplist, const char *stopname);
+int find_stop_index(const StopList *stoplist, const char *stopname);
 
 /**
  * @brief Adds a new stop to the StopList.

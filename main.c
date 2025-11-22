@@ -12,7 +12,7 @@ int main()
 
 	process_stops(stoplist, "megallok.txt");
 	process_lines(linelist, stoplist, "jaratok.txt");
-	process_schedules(schedulelist, "menetrendek.txt");
+	process_schedules(schedulelist, linelist, "menetrendek.txt");
 
 	mainmenu(stoplist, linelist, schedulelist);
 

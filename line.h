@@ -54,7 +54,7 @@ void free_linelist(LineList *linelist);
 
 void free_linestoplist(LineStopList *linestoplist);
 
-int process_lines(LineList *linelist, StopList *stoplist, char *filepath);
+int process_lines(LineList *linelist, const StopList *stoplist, const char *filepath);
 
 int ensure_linelist_capacity(LineList *linelist);
 
@@ -64,11 +64,11 @@ int ensure_linestoplist_capacity(LineStopList *linestoplist);
  * @brief Prints all lines in the list.
  * @param linelist Pointer to the LineList to display.
  */
-void list_lines(LineList *linelist);
+void list_lines(const LineList *linelist);
 
-void list_line(LineList *linelist, int line_num, int version);
+void list_line(const LineList *linelist, const int line_num, const int version);
 
-int reorder_linelist_without_a_specific_item(LineList *linelist, int index);
+int reorder_linelist_without_a_specific_item(LineList *linelist, const int index);
 
 /**
  * @brief Finds the index of a given Line inside a LineList.
@@ -76,11 +76,11 @@ int reorder_linelist_without_a_specific_item(LineList *linelist, int index);
  * @param linelist Pointer to the LineList to search within.
  * @return Index of the line, or -1 if not found.
  */
-int find_line_index(LineList *linelist, Line *line);
+int find_line_index(const LineList *linelist, const Line *line);
 
-int find_stop_index_in_linestoplist(LineStopList *linestoplist, char *stopname);
+int find_stop_index_in_linestoplist(const LineStopList *linestoplist, const char *stopname);
 
-int find_stop_index_in_linelist(LineList *linelist, char *stopname);
+int find_stop_index_in_linelist(const LineList *linelist, const char *stopname);
 
 /**
  * @brief Adds a new Line to a LineList.
@@ -88,7 +88,7 @@ int find_stop_index_in_linelist(LineList *linelist, char *stopname);
  * @param linelist Pointer to the target LineList.
  * @return 0 on success, -1 on failure.
  */
-int create_line(LineList *linelist, Line *line);
+int create_line(LineList *linelist, const Line *line);
 
 /**
  * @brief Deletes a Line from a LineList.
@@ -96,11 +96,11 @@ int create_line(LineList *linelist, Line *line);
  * @param linelist Pointer to the list from which the line is removed.
  * @return 0 on success, -1 if the line was not found.
  */
-int delete_line(LineList *linelist, Line *line);
+int delete_line(LineList *linelist, const Line *line);
 
 /**
  * @brief Retrieves the last stop of a Line.
  * @param line Pointer to the Line whose final stop is requested.
  * @return Pointer to the last Stop, or NULL if none exist.
  */
-Stop *get_last_stop(Line *line);
+Stop *get_last_stop(const Line *line);

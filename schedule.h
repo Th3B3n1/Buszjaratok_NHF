@@ -33,7 +33,7 @@ void init_schedulelist(ScheduleList *schedulelist);
 
 void free_schedulelist(ScheduleList *schedulelist);
 
-int process_schedules(ScheduleList *schedulelist, char *filepath);
+int process_schedules(ScheduleList *schedulelist, const LineList *linelist, const char *filepath);
 
 int ensure_schedulelist_capacity(ScheduleList *schedulelist);
 
@@ -41,7 +41,9 @@ int ensure_schedulelist_capacity(ScheduleList *schedulelist);
  * @brief Prints all schedules in the list to stdout.
  * @param schedulelist Pointer to the ScheduleList to display.
  */
-void list_schedules(ScheduleList *schedulelist);
+void list_schedules(const ScheduleList *schedulelist);
+
+int reorder_schedulelist_without_a_specific_item(ScheduleList *schedulelist, const int index);
 
 /**
  * @brief Finds the index of a Schedule in a ScheduleList.
@@ -49,7 +51,7 @@ void list_schedules(ScheduleList *schedulelist);
  * @param schedule Pointer to the Schedule being searched.
  * @return Index of the schedule, or -1 if not found.
  */
-int find_schedule_index(ScheduleList *schedulelist, Schedule *schedule);
+int find_schedule_index(const ScheduleList *schedulelist, const Schedule *schedule);
 
 /**
  * @brief Adds a Schedule to a ScheduleList.
@@ -57,7 +59,7 @@ int find_schedule_index(ScheduleList *schedulelist, Schedule *schedule);
  * @param schedule Pointer to the Schedule to add.
  * @return 0 on success, -1 on failure.
  */
-int create_schedule(ScheduleList *schedulelist, Schedule *schedule);
+int create_schedule(ScheduleList *schedulelist, const Schedule *schedule);
 
 /**
  * @brief Removes a Schedule from a ScheduleList.
@@ -65,4 +67,4 @@ int create_schedule(ScheduleList *schedulelist, Schedule *schedule);
  * @param schedule Pointer to the Schedule to remove.
  * @return 0 on success, -1 if the schedule is not found.
  */
-int delete_schedule(ScheduleList *schedulelist, Schedule *schedule);
+int delete_schedule(ScheduleList *schedulelist, const Schedule *schedule);

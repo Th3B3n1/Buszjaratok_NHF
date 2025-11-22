@@ -19,7 +19,7 @@ void free_stoplist(StopList *stoplist)
 	free(stoplist);
 }
 
-int process_stops(StopList *stoplist, char *filepath)
+int process_stops(StopList *stoplist, const char *filepath)
 {
 	FILE *file = fopen(filepath, "r");
 	if (file == NULL)
@@ -27,7 +27,7 @@ int process_stops(StopList *stoplist, char *filepath)
 	char unprocessed[512];
 	while (fgets(unprocessed, sizeof(unprocessed), file))
 	{
-		unprocessed[strcspn(unprocessed, "\r\n")] = '\0';
+		trim_line(unprocessed);
 		int unprocessed_len = strlen(unprocessed) + 1;
 		if (ensure_stoplist_capacity(stoplist) == -2)
 		{
@@ -66,7 +66,7 @@ int ensure_stoplist_capacity(StopList *stoplist)
 	return 0;
 }
 
-void list_stops(StopList *stoplist)
+void list_stops(const StopList *stoplist)
 {
 	if (!stoplist)
 		return;
@@ -76,7 +76,7 @@ void list_stops(StopList *stoplist)
 	}
 }
 
-int reorder_stoplist_without_a_specific_item(StopList *stoplist, int index)
+int reorder_stoplist_without_a_specific_item(StopList *stoplist, const int index)
 {
 	if (!stoplist)
 		return -2;
@@ -90,7 +90,7 @@ int reorder_stoplist_without_a_specific_item(StopList *stoplist, int index)
 	return 0;
 }
 
-int find_stop_index(StopList *stoplist, const char *stopname)
+int find_stop_index(const StopList *stoplist, const char *stopname)
 {
 	if (!stoplist)
 		return -2;
