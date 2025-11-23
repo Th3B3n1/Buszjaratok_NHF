@@ -16,6 +16,10 @@ int main()
 
 	mainmenu(stoplist, linelist, schedulelist);
 
+	write_stops_to_file(stoplist, "megallok.txt");
+	write_lines_to_file(linelist, "jaratok.txt");
+	write_schedules_to_file(schedulelist, "menetrendek.txt");
+
 	free_stoplist(stoplist);
 	free_linelist(linelist);
 	free_schedulelist(schedulelist);

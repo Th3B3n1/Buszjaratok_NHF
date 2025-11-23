@@ -56,6 +56,8 @@ void free_linestoplist(LineStopList *linestoplist);
 
 int process_lines(LineList *linelist, const StopList *stoplist, const char *filepath);
 
+int write_lines_to_file(const LineList *linelist, const char *filepath);
+
 int ensure_linelist_capacity(LineList *linelist);
 
 int ensure_linestoplist_capacity(LineStopList *linestoplist);
@@ -99,6 +101,8 @@ int create_line(LineList *linelist, const Line *line);
  * @return 0 on success, -1 if the line was not found.
  */
 int delete_line(LineList *linelist, const Line *line);
+
+TimeSpan get_time_from_terminus(const Line *line, const char *stopname);
 
 /**
  * @brief Retrieves the last stop of a Line.

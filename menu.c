@@ -14,13 +14,14 @@ void submenu_1(StopList *stoplist, LineList *linelist, int num)
 		}
 		else if (creation_code == -1)
 		{
+			free(stopname_to_create);
 			printf("Sikertelen megallo letrehozas. Ez a megallo mar letezik.\n");
 		}
 		else
 		{
+			free(stopname_to_create);
 			printf("Sikertelen megallo letrehozas.\n");
 		}
-		printf("\n%s", stopname_to_create);
 		break;
 	case 2:
 		printf("\nA megallok listaja:\n");
@@ -36,6 +37,7 @@ void submenu_1(StopList *stoplist, LineList *linelist, int num)
 			char confirm = read_char_from_stdin();
 			if (confirm != 'i' && confirm != 'I')
 			{
+				free(stopname_to_delete);
 				break;
 			}
 		}
@@ -46,10 +48,12 @@ void submenu_1(StopList *stoplist, LineList *linelist, int num)
 		}
 		else if (deletion_code == -1)
 		{
+			free(stopname_to_delete);
 			printf("Sikertelen megallo torles. Ilyen megallo nem letezik.\n");
 		}
 		else
 		{
+			free(stopname_to_delete);
 			printf("Sikertelen megallo torles.\n");
 		}
 		break;
@@ -80,40 +84,59 @@ void submenu_2(StopList *stoplist, LineList *linelist, int num)
 			printf("Adja meg a megallo nevet (befejezeshez 0-at irjon be): \n");
 			char *stopname = read_string_from_stdin();
 			if (strcmp(stopname, "0") == 0)
+			{
+				free(stopname);
 				break;
+			}
 			int stopindex = find_stop_index(stoplist, stopname);
 			if (stopindex == -1)
 			{
 				printf("A(z) %s megallo nem talalhato az adatbazisba, hozzaadjam uj megallokent? (i/n)", stopname);
 				char confirm = read_char_from_stdin();
-				if (confirm != 'i' && confirm != 'I')
+				if (confirm == 'i' || confirm == 'I')
 				{
-					break;
-				}
-				int code = create_stop(stoplist, stopname);
-				if (code > -1)
-				{
-					printf("Sikeres megallo letrehozas.\n");
-					stopindex = find_stop_index(stoplist, stopname);
-				}
-				else if (code == -1)
-				{
-					printf("Sikertelen megallo letrehozas. Ez a megallo mar letezik.\n");
+					int code = create_stop(stoplist, stopname);
+					if (code > -1)
+					{
+						printf("Sikeres megallo letrehozas.\n");
+						stopindex = find_stop_index(stoplist, stopname);
+					}
+					else if (code == -1)
+					{
+						free(stopname);
+						printf("Sikertelen megallo letrehozas. Ez a megallo mar letezik.\n");
+						continue;
+					}
+					else
+					{
+						free(stopname);
+						printf("Sikertelen megallo letrehozas.\n");
+						continue;
+					}
 				}
 				else
 				{
-					printf("Sikertelen megallo letrehozas.\n");
+					free(stopname);
+					continue;
 				}
 			}
-			printf("Adja meg az idot a terminusztol (HH:MM): \n");
 			int hour = 0;
 			int minute = 0;
-			scanf_s("%2d:%2d", &hour, &minute, 6);
+			printf("Adja meg az idot a terminusztol (HH:MM): \n");
+			char *time_str = read_string_from_stdin();
+			if (sscanf_s(time_str, "%2d:%2d", &hour, &minute) == EOF)
+			{
+				free(time_str);
+				printf("Nem megfelelo formatum.");
+				break;
+			}
+			free(time_str);
 			TimeSpan time = {hour, minute, 0};
 			LineStop linestop = {&stoplist->stops[stopindex], time};
 			if (ensure_linestoplist_capacity(line_to_create.stoplist) == -2)
 			{
-				break;
+				printf("Valami hiba történt. Probalja ujra.\n");
+				return;
 			}
 			line_to_create.stoplist->stops[line_to_create.stoplist->count] = linestop;
 			line_to_create.stoplist->count++;
@@ -177,19 +200,28 @@ void submenu_3(ScheduleList *schedulelist, LineList *linelist, int num)
 		line_for_creation.line_num = read_positive_number_from_stdin();
 		printf("Adja meg a jarat verzioszamjat: \n");
 		line_for_creation.version = read_positive_number_from_stdin();
-		int line_index = find_line_index(linelist, &line_for_creation);
-		if (line_index > -1)
+		int line_index_creation = find_line_index(linelist, &line_for_creation);
+		if (line_index_creation > -1)
 		{
 			Date date = init_date();
 			printf("Adja meg az indulasi datumot az alabbi formaba:\n");
-			printf("[YYYY-MM-DD-HH:MM:SS]\n");
+			printf("[YYYY-MM-DD HH:MM:SS]\n");
 			char *date_str = read_string_from_stdin();
-			if (sscanf_s(date_str, "%4d-%2d-%2d-%2d:%2d:%2d", &date.year, &date.month, &date.day, &date.hours, &date.minutes, &date.seconds) == EOF)
+			int years = 0;
+			int months = 0;
+			int days = 0;
+			int hours = 0;
+			int minutes = 0;
+			int seconds = 0;
+			if (sscanf_s(date_str, "%4d-%2d-%2d %2d:%2d:%2d", &years, &months, &days, &hours, &minutes, &seconds) == EOF)
 			{
-				printf("Nem megfelelo formatum.");
-				break;
+				free(date_str);
+				printf("Nem megfelelo formatum.\n");
+				return;
 			}
-			Schedule schedule = {&linelist->lines[line_index], date};
+			add_time_to_date(&date, years, months, days, hours, minutes, seconds);
+			free(date_str);
+			Schedule schedule = {&linelist->lines[line_index_creation], date};
 			int creation_code = create_schedule(schedulelist, &schedule);
 			if (creation_code > -1)
 			{
@@ -220,28 +252,45 @@ void submenu_3(ScheduleList *schedulelist, LineList *linelist, int num)
 		line_for_deletion.line_num = read_positive_number_from_stdin();
 		printf("Adja meg a jarat verzioszamjat: \n");
 		line_for_deletion.version = read_positive_number_from_stdin();
-		Date date = init_date();
-		printf("Adja meg az indulasi datumot az alabbi formaba:\n");
-		printf("[YYYY-MM-DD-HH:MM:SS]\n");
-		char *date_str = read_string_from_stdin();
-		if (sscanf_s(date_str, "%4d-%2d-%2d-%2d:%2d:%2d", &date.year, &date.month, &date.day, &date.hours, &date.minutes, &date.seconds) == EOF)
+		int line_index_deletion = find_line_index(linelist, &line_for_deletion);
+		if (line_index_deletion > -1)
 		{
-			printf("Nem megfelelo formatum.\n");
-			break;
-		}
-		Schedule schedule = {&linelist->lines[line_index], date};
-		int deletion_code = delete_schedule(schedulelist, &schedule);
-		if (deletion_code > -1)
-		{
-			printf("Sikeres jarat torles.\n");
-		}
-		else if (deletion_code == -1)
-		{
-			printf("Sikertelen jarat torles. Ilyen jarat nem letezik.\n");
+			Date date = init_date();
+			printf("Adja meg az indulasi datumot az alabbi formaba:\n");
+			printf("[YYYY-MM-DD HH:MM:SS]\n");
+			char *date_str = read_string_from_stdin();
+			int years = 0;
+			int months = 0;
+			int days = 0;
+			int hours = 0;
+			int minutes = 0;
+			int seconds = 0;
+			if (sscanf_s(date_str, "%4d-%2d-%2d %2d:%2d:%2d", &years, &months, &days, &hours, &minutes, &seconds) == EOF)
+			{
+				free(date_str);
+				printf("Nem megfelelo formatum.\n");
+				return;
+			}
+			add_time_to_date(&date, years, months, days, hours, minutes, seconds);
+			free(date_str);
+			Schedule schedule = {&linelist->lines[line_index_deletion], date};
+			int deletion_code = delete_schedule(schedulelist, &schedule);
+			if (deletion_code > -1)
+			{
+				printf("Sikeres menetrend torles.\n");
+			}
+			else if (deletion_code == -1)
+			{
+				printf("Sikertelen menetrend torles. Ilyen menetrend nem letezik.\n");
+			}
+			else
+			{
+				printf("Sikertelen menetrend torles.\n");
+			}
 		}
 		else
 		{
-			printf("Sikertelen jarat torles.\n");
+			printf("Nem letezik ezzel a jaratszammal es verzioval jarat.\n");
 		}
 		break;
 	default:
@@ -257,22 +306,38 @@ void submenu_4(ScheduleList *schedulelist, LineList *linelist)
 	char *endstop = read_string_from_stdin();
 	Date date = init_date();
 	printf("Adja meg az indulasi datumot az alabbi formaba:\n");
-	printf("[YYYY-MM-DD-HH:MM:SS]\n");
+	printf("[YYYY-MM-DD HH:MM:SS]\n");
 	char *date_str = read_string_from_stdin();
-	if (sscanf_s(date_str, "%4d-%2d-%2d-%2d:%2d:%2d", &date.year, &date.month, &date.day, &date.hours, &date.minutes, &date.seconds) == EOF)
+	int years = 0;
+	int months = 0;
+	int days = 0;
+	int hours = 0;
+	int minutes = 0;
+	int seconds = 0;
+	if (sscanf_s(date_str, "%4d-%2d-%2d %2d:%2d:%2d", &years, &months, &days, &hours, &minutes, &seconds) == EOF)
 	{
+		free(startstop);
+		free(endstop);
+		free(date_str);
 		printf("Nem megfelelo formatum.\n");
 		return;
 	}
+	add_time_to_date(&date, years, months, days, hours, minutes, seconds);
+	free(date_str);
 	int code = find_routes(schedulelist, linelist, startstop, endstop, &date);
 	if (code == -1)
 	{
 		printf("Nincsen megjelenitheto utvonal.\n");
 	}
+	free(startstop);
+	free(endstop);
 }
 
-void submenu_5()
+void submenu_5(StopList *stoplist, LineList *linelist, ScheduleList *schedulelist)
 {
+	write_stops_to_file(stoplist, "megallok.txt");
+	write_lines_to_file(linelist, "jaratok.txt");
+	write_schedules_to_file(schedulelist, "menetrendek.txt");
 }
 
 void mainmenu(StopList *stoplist, LineList *linelist, ScheduleList *schedulelist)
@@ -307,7 +372,7 @@ void mainmenu(StopList *stoplist, LineList *linelist, ScheduleList *schedulelist
 			submenu_4(schedulelist, linelist);
 			break;
 		case 5:
-			submenu_5();
+			submenu_5(stoplist, linelist, schedulelist);
 			break;
 		default:
 			break;

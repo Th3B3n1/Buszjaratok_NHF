@@ -8,12 +8,12 @@ Date init_date()
 
 int compare_dates(const Date *a, const Date *b)
 {
-    if (a->year != b->year)
-        return a->year < b->year ? -1 : 1;
-    if (a->month != b->month)
-        return a->month < b->month ? -1 : 1;
-    if (a->day != b->day)
-        return a->day < b->day ? -1 : 1;
+    if (a->years != b->years)
+        return a->years < b->years ? -1 : 1;
+    if (a->months != b->months)
+        return a->months < b->months ? -1 : 1;
+    if (a->days != b->days)
+        return a->days < b->days ? -1 : 1;
     if (a->hours != b->hours)
         return a->hours < b->hours ? -1 : 1;
     if (a->minutes != b->minutes)
@@ -25,7 +25,49 @@ int compare_dates(const Date *a, const Date *b)
 
 void print_date(const Date *date)
 {
-    printf("%4d-%2d-%2d-%2d:%2d:%2d", date->year, date->month, date->day, date->hours, date->minutes, date->seconds);
+    printf("%4d-%2d-%2d %2d:%2d:%2d", date->years, date->months, date->days, date->hours, date->minutes, date->seconds);
+}
+
+void add_time_to_timespan(TimeSpan *time, int hours, int minutes, int seconds)
+{
+    time->seconds += seconds;
+    time->minutes += minutes + time->seconds / 60;
+    time->seconds %= 60;
+
+    time->hours += hours + time->minutes / 60;
+    time->minutes %= 60;
+
+    time->hours %= 24;
+}
+
+void add_time_to_date(Date *date, int years, int months, int days, int hours, int minutes, int seconds)
+{
+    struct tm t = {0};
+    t.tm_year = date->years - 1900;
+    t.tm_mon = date->months - 1;
+    t.tm_mday = date->days;
+    t.tm_hour = date->hours;
+    t.tm_min = date->minutes;
+    t.tm_sec = date->seconds;
+
+    t.tm_year += years;
+    t.tm_mon += months;
+    t.tm_mday += days;
+    t.tm_hour += hours;
+    t.tm_min += minutes;
+    t.tm_sec += seconds;
+
+    time_t normalized = mktime(&t);
+
+    if (normalized == (time_t)-1)
+        return;
+
+    date->years = t.tm_year + 1900;
+    date->months = t.tm_mon + 1;
+    date->days = t.tm_mday;
+    date->hours = t.tm_hour;
+    date->minutes = t.tm_min;
+    date->seconds = t.tm_sec;
 }
 
 int read_positive_number_from_stdin()
@@ -98,7 +140,7 @@ char *read_string_from_stdin()
     for (String *current = first; current != NULL; current = current->next)
         list_len++;
 
-    char *str = (char *)malloc(list_len * sizeof(char));
+    char *str = (char *)malloc((list_len + 1) * sizeof(char));
     if (!str)
         return NULL;
 

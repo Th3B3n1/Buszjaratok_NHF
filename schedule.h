@@ -35,6 +35,8 @@ void free_schedulelist(ScheduleList *schedulelist);
 
 int process_schedules(ScheduleList *schedulelist, const LineList *linelist, const char *filepath);
 
+int write_schedules_to_file(const ScheduleList *schedulelist, const char *filepath);
+
 int ensure_schedulelist_capacity(ScheduleList *schedulelist);
 
 /**
@@ -68,3 +70,7 @@ int create_schedule(ScheduleList *schedulelist, const Schedule *schedule);
  * @return 0 on success, -1 if the schedule is not found.
  */
 int delete_schedule(ScheduleList *schedulelist, const Schedule *schedule);
+
+int find_routes(ScheduleList *schedulelist, LineList *linelist, const char *startstop, const char *endstop, const Date *date);
+
+ScheduleList *find_schedules_for_line_within_a_certain_date(const ScheduleList *schedulelist, const Line *line, const Date *date);

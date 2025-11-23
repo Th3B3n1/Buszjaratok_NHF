@@ -25,55 +25,106 @@ typedef struct StopList
 
 /**
  * @brief Initializes an empty StopList.
- * @return A new StopList instance.
+ *
+ * Sets the internal array pointer to NULL, and resets count and capacity.
+ *
+ * @param stoplist Pointer to an allocated StopList.
  */
 void init_stoplist(StopList *stoplist);
 
+/**
+ * @brief Frees a StopList and all dynamically allocated stop names.
+ *
+ * This function frees:
+ * - all stop name strings
+ * - the internal stop array
+ * - the StopList structure itself
+ *
+ * @param stoplist Pointer to the StopList to free. NULL is ignored.
+ */
 void free_stoplist(StopList *stoplist);
 
+/**
+ * @brief Loads stops from a text file into the StopList.
+ *
+ * The file must contain one stop name per line.
+ * Each stop name is dynamically allocated and stored in the list.
+ *
+ * @param stoplist Pointer to the StopList to fill.
+ * @param filepath Path to the file containing the stop names.
+ * @return 0 on success, -2 on file or memory error.
+ */
 int process_stops(StopList *stoplist, const char *filepath);
 
 /**
- * @brief Ensures the StopList has enough capacity for adding new items.
+ * @brief Writes all stops in the list to a file, one per line.
+ *
+ * @param stoplist Pointer to the StopList containing the stops.
+ * @param filepath Output file path.
+ * @return 0 on success, -2 on file error.
+ */
+int write_stops_to_file(const StopList *stoplist, const char *filepath);
+
+/**
+ * @brief Ensures the StopList has enough allocated space to store a new item.
+ *
+ * If capacity is insufficient, the internal array is reallocated with doubled size.
+ *
  * @param stoplist Pointer to the StopList.
- * @return 0 on success, -1 on allocation failure.
+ * @return 0 on success, -2 on memory allocation failure.
  */
 int ensure_stoplist_capacity(StopList *stoplist);
 
 /**
  * @brief Prints all stops in the list to stdout.
- * @param stoplist Pointer to the StopList to print.
+ *
+ * Each stop name is printed on a separate line.
+ *
+ * @param stoplist Pointer to the StopList. NULL is ignored.
  */
 void list_stops(const StopList *stoplist);
 
 /**
- * @brief Reorders the list by removing a specific index.
- * @param stoplist Pointer to the StopList to modify.
- * @param index Index of the element to remove.
- * @return 0 on success, -1 if index is invalid.
+ * @brief Removes a stop from the list at a given index.
+ *
+ * Frees the stop's name, shifts remaining elements left, and decreases count.
+ *
+ * @param stoplist Pointer to the StopList.
+ * @param index Index of the stop to remove.
+ * @return 0 on success, -2 on invalid StopList.
  */
 int reorder_stoplist_without_a_specific_item(StopList *stoplist, const int index);
 
 /**
- * @brief Finds the index of a stop by its name.
+ * @brief Searches for a stop by name.
+ *
+ * Performs a linear search through the list.
+ *
  * @param stoplist Pointer to the StopList.
- * @param stopname Name of the stop to search.
- * @return Index of the stop, or -1 if not found.
+ * @param stopname Name of the stop to search for.
+ * @return Index of the stop, -1 if not found, -2 if stoplist is NULL.
  */
 int find_stop_index(const StopList *stoplist, const char *stopname);
 
 /**
- * @brief Adds a new stop to the StopList.
+ * @brief Adds a new stop to the list.
+ *
+ * The stopname pointer is stored directly without copying.
+ * Caller must allocate the memory for the stop name.
+ *
  * @param stoplist Pointer to the StopList.
- * @param stopname Name of the stop to add.
- * @return 0 on success, -1 on failure.
+ * @param stopname Dynamically allocated string containing the stop name.
+ * @return 0 on success, -1 if already exists, -2 on allocation error.
  */
-int create_stop(StopList *stoplist, const char *stopname);
+int create_stop(StopList *stoplist, char *stopname);
 
 /**
- * @brief Removes a stop from the StopList.
+ * @brief Deletes a stop from the list by name.
+ *
+ * Searches the stop by name, then removes and frees it.
+ *
  * @param stoplist Pointer to the StopList.
  * @param stopname Name of the stop to remove.
- * @return 0 on success, -1 if the stop is not found.
+ * @return 0 on success, -1 if not found, -2 on error.
  */
 int delete_stop(StopList *stoplist, const char *stopname);

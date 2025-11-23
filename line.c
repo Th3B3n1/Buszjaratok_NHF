@@ -57,8 +57,8 @@ int process_lines(LineList *linelist, const StopList *stoplist, const char *file
 				init_linestoplist(line.stoplist);
 			}
 			char *stop_next;
-			char *key = strtok_s(stop, "-", &stop_next);
-			char *value = strtok_s(NULL, "-", &stop_next);
+			char *key = strtok_s(stop, "#", &stop_next);
+			char *value = strtok_s(NULL, "#", &stop_next);
 			int stopindex = find_stop_index(stoplist, key);
 			if (stopindex > -1)
 			{
@@ -88,6 +88,26 @@ int process_lines(LineList *linelist, const StopList *stoplist, const char *file
 		}
 		linelist->lines[linelist->count] = line;
 		linelist->count++;
+	}
+	fclose(file);
+	return 0;
+}
+
+int write_lines_to_file(const LineList *linelist, const char *filepath)
+{
+	if (!linelist)
+		return -2;
+	FILE *file = fopen(filepath, "w");
+	if (file == NULL)
+		return -2;
+	for (int i = 0; i < linelist->count; i++)
+	{
+		fprintf_s(file, "%d;%d", linelist->lines[i].line_num, linelist->lines[i].version);
+		for (int y = 0; y < linelist->lines[i].stoplist->count; y++)
+		{
+			fprintf_s(file, ";%s#%02d:%02d", linelist->lines[i].stoplist->stops[y].stop->name, linelist->lines[i].stoplist->stops[y].time_from_terminus.hours, linelist->lines[i].stoplist->stops[y].time_from_terminus.minutes);
+		}
+		fprintf_s(file, "\n");
 	}
 	fclose(file);
 	return 0;
@@ -170,6 +190,7 @@ int reorder_linelist_without_a_specific_item(LineList *linelist, const int index
 		return -2;
 	if (index < 0)
 		return 0;
+	free(linelist->lines[index].stoplist);
 	for (int i = index; i < linelist->count - 1; i++)
 	{
 		linelist->lines[i] = linelist->lines[i + 1];
@@ -224,8 +245,10 @@ int find_stop_index_in_linelist(const LineList *linelist, const char *stopname)
 
 int compare_lines(const Line *a, const Line *b)
 {
-	if (a->line_num != b->line_num) return -1;
-	if (a->version != b->version) return -1;
+	if (a->line_num != b->line_num)
+		return -1;
+	if (a->version != b->version)
+		return -1;
 	return 0;
 }
 
@@ -256,6 +279,19 @@ int delete_line(LineList *linelist, const Line *line)
 	if (reorder_linelist_without_a_specific_item(linelist, index) == -2)
 		return -2;
 	return 0;
+}
+
+TimeSpan get_time_from_terminus(const Line *line, const char *stopname)
+{
+	for (int i = 0; i < line->stoplist->count; i++)
+	{
+		if (strcmp(line->stoplist->stops[i].stop->name, stopname) == 0)
+		{
+			return line->stoplist->stops[i].time_from_terminus;
+		}
+	}
+	TimeSpan time = {-1, -1, -1};
+	return time;
 }
 
 Stop *get_last_stop(const Line *line)

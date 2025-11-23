@@ -47,6 +47,21 @@ int process_stops(StopList *stoplist, const char *filepath)
 	return 0;
 }
 
+int write_stops_to_file(const StopList *stoplist, const char *filepath)
+{
+	if (!stoplist)
+		return -2;
+	FILE *file = fopen(filepath, "w");
+	if (file == NULL)
+		return -2;
+	for (int i = 0; i < stoplist->count; i++)
+	{
+		fprintf_s(file, "%s\n", stoplist->stops[i].name);
+	}
+	fclose(file);
+	return 0;
+}
+
 int ensure_stoplist_capacity(StopList *stoplist)
 {
 	if (stoplist->count >= stoplist->capacity)
@@ -82,10 +97,12 @@ int reorder_stoplist_without_a_specific_item(StopList *stoplist, const int index
 		return -2;
 	if (index < 0)
 		return 0;
+	free(stoplist->stops[index].name);
 	for (int i = index; i < stoplist->count - 1; i++)
 	{
 		stoplist->stops[i] = stoplist->stops[i + 1];
 	}
+	stoplist->stops[stoplist->count].name = NULL;
 	stoplist->count--;
 	return 0;
 }
@@ -104,7 +121,7 @@ int find_stop_index(const StopList *stoplist, const char *stopname)
 	return -1;
 }
 
-int create_stop(StopList *stoplist, const char *stopname)
+int create_stop(StopList *stoplist, char *stopname)
 {
 	if (!stoplist)
 		return -2;
@@ -113,11 +130,7 @@ int create_stop(StopList *stoplist, const char *stopname)
 		return -1;
 	if (ensure_stoplist_capacity(stoplist) == -2)
 		return -2;
-	int stopname_len = strlen(stopname) + 1;
-	stoplist->stops[stoplist->count].name = (char *)malloc(stopname_len * sizeof(char));
-	if (stoplist->stops[stoplist->count].name == NULL)
-		return -2;
-	strcpy_s(stoplist->stops[stoplist->count].name, stopname_len, stopname);
+	stoplist->stops[stoplist->count].name = stopname;
 	stoplist->count++;
 	return 0;
 }
