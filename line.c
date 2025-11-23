@@ -140,7 +140,7 @@ void list_lines(const LineList *linelist)
 		printf("----------------------\n");
 		printf("Jarat: %d\n", linelist->lines[i].line_num);
 		printf("Verzio: %d\n", linelist->lines[i].version);
-		printf("Utvonal: %s -> %s\n", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[0].stop->name : "", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[linelist->lines[i].stoplist->count - 1].stop->name : "");
+		printf("Utvonal: %s -> %s\n", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[0].stop->name : "", (linelist->lines[i].stoplist->count > 0) ? get_last_stop(&linelist->lines[i])->name : "");
 		printf("----------------------\n");
 	}
 }
@@ -156,7 +156,7 @@ void list_line(const LineList *linelist, const int line_num, const int version)
 			printf("----------------------\n");
 			printf("Jarat: %d\n", linelist->lines[i].line_num);
 			printf("Verzio: %d\n", linelist->lines[i].version);
-			printf("Utvonal: %s -> %s\n", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[0].stop->name : "", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[linelist->lines[i].stoplist->count - 1].stop->name : "");
+			printf("Utvonal: %s -> %s\n", (linelist->lines[i].stoplist->count > 0) ? linelist->lines[i].stoplist->stops[0].stop->name : "", (linelist->lines[i].stoplist->count > 0) ? get_last_stop(&linelist->lines[i])->name : "");
 			printf("----------------------\n");
 			return;
 		}

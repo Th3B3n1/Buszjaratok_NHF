@@ -82,6 +82,8 @@ int find_stop_index_in_linestoplist(const LineStopList *linestoplist, const char
 
 int find_stop_index_in_linelist(const LineList *linelist, const char *stopname);
 
+int compare_lines(const Line *a, const Line *b);
+
 /**
  * @brief Adds a new Line to a LineList.
  * @param line Pointer to the Line to insert.

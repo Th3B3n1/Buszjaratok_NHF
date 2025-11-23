@@ -226,7 +226,7 @@ void submenu_3(ScheduleList *schedulelist, LineList *linelist, int num)
 		char *date_str = read_string_from_stdin();
 		if (sscanf_s(date_str, "%4d-%2d-%2d-%2d:%2d:%2d", &date.year, &date.month, &date.day, &date.hours, &date.minutes, &date.seconds) == EOF)
 		{
-			printf("Nem megfelelo formatum.");
+			printf("Nem megfelelo formatum.\n");
 			break;
 		}
 		Schedule schedule = {&linelist->lines[line_index], date};
@@ -249,12 +249,26 @@ void submenu_3(ScheduleList *schedulelist, LineList *linelist, int num)
 	}
 }
 
-void submenu_4()
+void submenu_4(ScheduleList *schedulelist, LineList *linelist)
 {
 	printf("Adja meg a kiindulasi megallot: \n");
-	// char *startstop = read_string_from_stdin();
+	char *startstop = read_string_from_stdin();
 	printf("Adja meg a cel megallot: \n");
-	// char *endstop = read_string_from_stdin();
+	char *endstop = read_string_from_stdin();
+	Date date = init_date();
+	printf("Adja meg az indulasi datumot az alabbi formaba:\n");
+	printf("[YYYY-MM-DD-HH:MM:SS]\n");
+	char *date_str = read_string_from_stdin();
+	if (sscanf_s(date_str, "%4d-%2d-%2d-%2d:%2d:%2d", &date.year, &date.month, &date.day, &date.hours, &date.minutes, &date.seconds) == EOF)
+	{
+		printf("Nem megfelelo formatum.\n");
+		return;
+	}
+	int code = find_routes(schedulelist, linelist, startstop, endstop, &date);
+	if (code == -1)
+	{
+		printf("Nincsen megjelenitheto utvonal.\n");
+	}
 }
 
 void submenu_5()
@@ -290,7 +304,7 @@ void mainmenu(StopList *stoplist, LineList *linelist, ScheduleList *schedulelist
 			nn = -1;
 			break;
 		case 4:
-			submenu_4();
+			submenu_4(schedulelist, linelist);
 			break;
 		case 5:
 			submenu_5();
