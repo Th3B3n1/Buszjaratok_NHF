@@ -16,9 +16,19 @@ int main()
 
 	mainmenu(stoplist, linelist, schedulelist);
 
-	write_stops_to_file(stoplist, "megallok.txt");
-	write_lines_to_file(linelist, "jaratok.txt");
-	write_schedules_to_file(schedulelist, "menetrendek.txt");
+	printf("Szeretne menteni a valtoztatasokat? (i/n)\n");
+	char confirm = read_char_from_stdin();
+	if (confirm == 'i' || confirm == 'I')
+	{
+		write_stops_to_file(stoplist, "megallok.txt");
+		write_lines_to_file(linelist, "jaratok.txt");
+		write_schedules_to_file(schedulelist, "menetrendek.txt");
+		printf("Sikeres mentes.\n.");
+	}
+	else
+	{
+		printf("Nem tortent mentes.\n");
+	}
 
 	free_stoplist(stoplist);
 	free_linelist(linelist);
