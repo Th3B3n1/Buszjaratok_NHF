@@ -86,7 +86,7 @@ void add_time_to_timespan(TimeSpan *time, const int hours, const int minutes, co
  * Handles overflow automatically.
  *
  * @param date Pointer to the Date to modify.
- * @param year Years to add.
+ * @param years Years to add.
  * @param months Months to add.
  * @param days Days to add.
  * @param hours Hours to add.
