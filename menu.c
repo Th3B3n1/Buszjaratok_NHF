@@ -48,14 +48,13 @@ void submenu_1(StopList *stoplist, LineList *linelist, int num)
 		}
 		else if (deletion_code == -1)
 		{
-			free(stopname_to_delete);
 			printf("Sikertelen megallo torles. Ilyen megallo nem letezik.\n");
 		}
 		else
 		{
-			free(stopname_to_delete);
 			printf("Sikertelen megallo torles.\n");
 		}
+		free(stopname_to_delete);
 		break;
 	default:
 		break;
@@ -148,6 +147,7 @@ void submenu_2(StopList *stoplist, LineList *linelist, int num)
 		}
 		else
 		{
+			free_linestoplist(line_to_create.stoplist);
 			printf("Sikertelen jarat letrehozas.\n");
 		}
 		break;

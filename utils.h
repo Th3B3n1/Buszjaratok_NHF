@@ -127,3 +127,5 @@ char read_char_from_stdin();
  *         or NULL on allocation failure or empty input.
  */
 char *read_string_from_stdin();
+
+void free_stringlist(String *first);

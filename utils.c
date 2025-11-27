@@ -114,12 +114,7 @@ char *read_string_from_stdin()
         String *next = (String *)malloc(sizeof(String));
         if (!next)
         {
-            while (first)
-            {
-                String *tmp = first;
-                first = tmp->next;
-                free(tmp);
-            }
+            free_stringlist(first);
             return NULL;
         }
         next->c = (char)c;
@@ -142,7 +137,10 @@ char *read_string_from_stdin()
 
     char *str = (char *)malloc((list_len + 1) * sizeof(char));
     if (!str)
+    {
+        free_stringlist(first);
         return NULL;
+    }
 
     int str_counter = 0;
     for (String *current = first; current != NULL; current = current->next)
@@ -151,12 +149,17 @@ char *read_string_from_stdin()
     };
     str[str_counter] = '\0';
 
+    free_stringlist(first);
+
+    return str;
+}
+
+void free_stringlist(String *first)
+{
     while (first)
     {
         String *tmp = first;
         first = tmp->next;
         free(tmp);
     }
-
-    return str;
 }
